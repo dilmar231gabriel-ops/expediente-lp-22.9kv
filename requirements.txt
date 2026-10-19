@@ -1,0 +1,14 @@
+# Python 3.10 o superior. Instalar con:  pip install -r requirements.txt
+# Además se necesita LibreOffice (gratuito) para recalcular los Excel y convertir a PDF: https://www.libreoffice.org
+pandas>=2.0
+numpy>=1.24
+scipy>=1.10
+shapely>=2.0
+pyproj>=3.5
+rasterio>=1.3
+openpyxl>=3.1
+python-docx>=1.1
+ezdxf>=1.1
+matplotlib>=3.7
+PyYAML>=6.0
+PyMuPDF>=1.24

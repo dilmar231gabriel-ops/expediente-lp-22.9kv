@@ -1,0 +1,155 @@
+# =====================================================================================================
+#  ARCHIVO DE CONFIGURACIÓN DEL PROYECTO – Línea primaria 22,9 kV
+#  Todo lo que cambia de un proyecto a otro está aquí. El código (carpeta src/) no se toca.
+#  Convención: cada dato lleva su FUENTE en un comentario. Si no tiene fuente real, escriba SUPUESTO
+#  y aparecerá así en el expediente para que se valide en campo.
+#  Rutas de archivos: relativas a la carpeta de este archivo.
+# =====================================================================================================
+
+proyecto:
+  nombre: "LÍNEA PRIMARIA 22,9 kV TRIFÁSICA CHACACHACA – CUTURAPI – YUNGUYO"
+  nombre_corto: "LP 22,9 kV Chacachaca–Yunguyo"
+  departamento: "Puno"
+  provincias: "Chucuito y Yunguyo"
+  distritos: "Pomata, Zepita, Cuturapi y Yunguyo"
+  ubicacion: "Distritos de Pomata y Zepita (Chucuito), Cuturapi y Yunguyo (Yunguyo) – Puno"
+  concesionaria: "Electro Puno S.A.A."
+  entidad: "Por definir"                 # entidad que licita / financia
+  proyectista: "Ingeniero Dilmar Humberto Ccora"   # sin CIP, firma ni sello si no se proporcionan
+  iniciales: "D.H.C."
+  fecha: "Octubre 2026"                  # fecha del expediente (texto)
+  ciudad_fecha_caratula: "PUNO – OCTUBRE – 2026"
+  anio_base: 2027                        # año 0 del estudio de mercado
+  horizonte: 20                          # años
+  plazo_dias: 120                        # plazo de ejecución de obra
+
+# Sistema de coordenadas UTM del proyecto (Perú: zona 17 S = 32717, 18 S = 32718, 19 S = 32719)
+epsg_utm: 32719
+
+# Puntos de la línea (longitud, latitud WGS 84 – se obtienen de Google Earth)
+puntos:
+  inicio:      {nombre: "Buena Vista Chacachaca", lon: -69.2580992, lat: -16.3202673, descripcion: "punto de diseño – red existente 22,9 kV (por confirmar)"}
+  fin:         {nombre: "Yunguyo", lon: -69.0925538, lat: -16.2442325, descripcion: "llegada a la red de Yunguyo"}
+  derivaciones:                          # cero, una o varias derivaciones (estructura DT-3 con seccionamiento)
+    - {id: "D1", nombre: "Cuturapi", lon: -69.1774470, lat: -16.2700082}
+
+# Trazado
+trazado:
+  archivo_ruta: "datos/ruta_via.geojson"   # LineString (GeoJSON o KML) – vía a seguir o eje dibujado en Google Earth
+  ruta_es_via: true                      # true: la ruta es una carretera → se desplaza y se cuenta como cruce
+  desplazamiento_m: 40                   # separación del eje de la vía (RD 018: ≥ 25 m de carreteras importantes); 0 = usar la ruta tal cual
+  lado: "derecha"                        # derecha / izquierda (en el sentido inicio → fin)
+  tolerancia_simplificacion_m: 15        # Douglas-Peucker
+  angulo_max_quiebre_deg: 60             # se eliminan quiebres mayores (vértices en U)
+  angulo_fusion_deg: 2                   # vértices casi colineales que se fusionan
+  dist_min_via_m: 25
+  nombre_via: "Vía Pomata – Yunguyo"
+
+# Datos geográficos de entrada
+datos:
+  dem: "datos/dem.tif"                   # modelo digital de elevación (Copernicus GLO-30), WGS 84
+  osm: "datos/osm_corredor.geojson"      # vías, ríos, edificaciones (OpenStreetMap) – opcional
+
+# Sistema eléctrico (RD 018-2003-EM/DGE)
+sistema:
+  Vn: 22.9
+  Vmax: 25.0
+  f: 60
+  cos: 0.90
+  Scc_MVA: 250.0          # SUPUESTO (RD 018 mínimo) – pedir a la concesionaria
+  t_falla: 0.20           # s – SUPUESTO
+  dV_max_pct: 5.0
+  reserva_dV: 0.85        # se exige ΔV ≤ 85 % del límite (incertidumbre del estudio de mercado)
+  XR_fuente: 5.0          # SUPUESTO para el cortocircuito (Vol. IX)
+  nivel_isoceraunico: 30  # RD 018 Cuadro 6.1 según altitud
+
+# Clima (SENAMHI, estación más cercana) y zona de carga del CNE-S 2011
+clima:
+  estacion: "SENAMHI Tahuaco – Yunguyo (normales 1991-2020)"
+  t_min_media: 1.6
+  t_max_media: 14.8
+  t_media: 8.0            # temperatura EDS
+  t_min_diseno: -10.0     # SUPUESTO conservador
+  t_max_diseno: 40.0      # + 10 °C de CREEP se suma automáticamente (H6)
+  zona_carga: "Área 1 (3 000 – 4 000 m s.n.m.)"
+  viento_ms: 29.0         # CNE-S Área 1, a 5 °C
+  t_viento: 5.0
+  hielo_mm: 6.0           # CNE-S Área 1, a 0 °C
+  hielo_comb_mm: 3.0
+  viento_comb_ms: 14.5
+  K_viento: 0.455         # CNE-S 250.C: 0,613 a nivel del mar; 0,455 sobre 3 000 m s.n.m.
+  contaminacion: "Medio (clase II)"   # IEC 60815
+  t_max_ambiente: 25      # para las especificaciones de equipos
+
+# Estudio de mercado (INEI Censo 2017) – cada carga se conecta en "FIN" o en una derivación (id)
+mercado:
+  cargas:
+    - {nombre: "Distrito de Cuturapi", pob2017: 1386, punto: "D1"}
+    - {nombre: "Sectores rurales del distrito de Yunguyo", pob2017: 13488, punto: "FIN"}
+  hab_viv: 3.4            # SUPUESTO
+  tasa_viv: 0.010         # SUPUESTO
+  coef_elec: 0.95         # SUPUESTO
+  cu_kwh_mes: 25.0        # SUPUESTO
+  tasa_cu: 0.025          # SUPUESTO
+  pct_comercial: 0.10
+  pct_general: 0.05
+  pct_productivo: 0.05
+  pct_ap: 0.05
+  perd_dist: 0.08
+  fc: 0.30
+
+# Diseño mecánico y de estructuras (valores típicos RD 018 / CNE-S; cambiar solo con sustento)
+diseno:
+  dist_terreno_m: 6.0
+  dist_cruce_via_m: 7.0
+  margen_dem_m: 0.30
+  vano_max_m: 220
+  vano_min_m: 15
+  paso_plantillado_m: 5
+  anclaje_cada_m: 3000
+  postes:                 # L (m), Q (daN), Do y Db (cm), costo relativo para la optimización
+    "12/300": {L: 12.0, Q: 300.0, Do: 16.0, Db: 34.0}
+    "12/400": {L: 12.0, Q: 400.0, Do: 16.0, Db: 35.5}
+    "13/400": {L: 13.0, Q: 400.0, Do: 16.0, Db: 37.0}
+  armado: {d_sup: -0.30, d_inf: 1.10, sep_h: 2.0}
+  retenida: {cable: "Cable de acero galvanizado grado Siemens-Martin 10 mm (3/8\")", rotura_N: 30920.0, FS: 2.0, angulo_deg: 37.0}
+  puesta_tierra: {rho: 100.0, L: 2.4, d: 0.016, cada_n: 3, R_equipo_max: 25.0}   # rho SUPUESTO: medir en campo
+  linea_fuga_mm_kV: 20     # IEC 60815, contaminación media
+  conductor_mm2: 70        # kit de materiales (AAAC 70 mm²); el Vol. VI muestra además el óptimo económico
+  cable_guarda: false
+
+# Parámetros económicos
+economico:
+  tipo_cambio: 3.453
+  tipo_cambio_fuente: "BCRP – Tipo de cambio SBS venta, 07/10/2026 (serie PD04640PD)"
+  utilidad: 0.08
+  igv: 0.18
+  transporte_pct: 0.07
+  ruta_transporte: "Lima/Arequipa – Juliaca – Yunguyo, aprox. 1 300 km"
+
+# Textos propios del lugar (aparecen en la memoria, resumen ejecutivo y geología)
+textos:
+  antecedentes: >-
+    El corredor Chacachaca – Cuturapi – Yunguyo, en el altiplano circunlacustre de Puno, concentra población rural dedicada
+    a la agricultura, la ganadería y el comercio fronterizo. Para atender su crecimiento de demanda se plantea una línea troncal
+    trifásica en 22,9 kV que, partiendo de la red existente en Buena Vista Chacachaca, llegue hasta Yunguyo con una derivación
+    para el distrito de Cuturapi.
+  situacion_actual: >-
+    Las localidades del área de influencia cuentan con redes de distribución de la concesionaria alimentadas desde el sistema
+    existente; no se dispone, a la fecha, de registros de calidad de suministro (SAIFI/SAIDI) ni del documento de factibilidad.
+  actividad_economica: >-
+    Predomina la agricultura de secano (papa, quinua, habas, cebada) y la ganadería de ovinos y vacunos; en Yunguyo es
+    relevante el comercio fronterizo con Bolivia.
+  vias_acceso: >-
+    Carretera asfaltada Puno – Pomata – Yunguyo, paralela al trazado; desde Juliaca (almacenes de proveedores) el recorrido es
+    de aproximadamente 230 km.
+  region_natural: "Altiplano circunlacustre del lago Titicaca"
+  geologia: >-
+    Planicie lacustre y lomadas suaves; se esperan depósitos cuaternarios lacustres y aluviales (limos, arcillas y arenas finas)
+    con posibles niveles freáticos someros en las zonas bajas cercanas al lago (a confirmar con calicatas).
+  uso_suelo: "Parcelas agrícolas y de pastoreo"
+  peligros: >-
+    Inundación y anegamiento estacional en depresiones, heladas (congelamiento superficial) y sismicidad; la zonificación sísmica
+    se verificará con la Norma E.030.
+  cuadrangulo_ingemmet: "cuadrángulo correspondiente a Yunguyo – Pomata"
+  riesgo_climatico: "Lluvias intensas y heladas (diciembre – marzo) que paralicen trabajos"

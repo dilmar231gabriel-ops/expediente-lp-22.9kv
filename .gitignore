@@ -1,0 +1,13 @@
+# resultados generados (se regeneran con generar.py)
+salida/
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+# temporales de Office / LibreOffice
+~$*
+.~lock.*
+# sistema
+.DS_Store
+Thumbs.db

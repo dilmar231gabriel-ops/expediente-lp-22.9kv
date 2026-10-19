@@ -1,0 +1,157 @@
+# =====================================================================================================
+#  PLANTILLA DE CONFIGURACIÓN – Línea primaria 22,9 kV (expediente técnico completo)
+#
+#  1. Copie esta carpeta:  python herramientas/nuevo_proyecto.py mi-proyecto
+#  2. Complete los campos marcados con  <<< COMPLETAR  (los demás tienen valores típicos con sustento).
+#  3. Coloque en datos/ el DEM, la ruta y (opcional) las capas OSM  → ver docs/GUIA_NUEVO_PROYECTO.md
+#  4. Ejecute:  python generar.py proyectos/mi-proyecto/proyecto.yaml
+#
+#  Convención: cada dato lleva su FUENTE en un comentario. Si no tiene fuente real escriba SUPUESTO; el
+#  expediente lo listará como dato pendiente (Vol. XI). NUNCA invente datos de campo.
+#  Rutas de archivos: relativas a la carpeta de este archivo.
+# =====================================================================================================
+
+proyecto:
+  nombre: "LÍNEA PRIMARIA 22,9 kV TRIFÁSICA <INICIO> – <FIN>"        # <<< COMPLETAR (título oficial, en mayúsculas)
+  nombre_corto: "LP 22,9 kV <Inicio>–<Fin>"                          # <<< COMPLETAR (nombre de archivos y carpetas)
+  departamento: "<Departamento>"                                     # <<< COMPLETAR
+  provincias: "<Provincia(s)>"                                       # <<< COMPLETAR
+  distritos: "<Distrito(s)>"                                         # <<< COMPLETAR
+  ubicacion: "Distrito(s) de ... (Provincia) – Departamento"         # <<< COMPLETAR (línea que va en carátulas)
+  concesionaria: "<Empresa concesionaria S.A.A.>"                    # <<< COMPLETAR (Electro Sur Este, Electrocentro, Hidrandina, …)
+  entidad: "Por definir"                 # entidad que licita / financia
+  financiamiento: "Por definir por la Entidad contratante."
+  proyectista: "<Nombre del proyectista>"                            # <<< COMPLETAR – sin CIP, firma ni sello si no se proporcionan
+  iniciales: ""
+  fecha: "<Mes Año>"                                                 # <<< COMPLETAR, p. ej. "Marzo 2027"
+  ciudad_fecha_caratula: "<CIUDAD> – <MES> – <AÑO>"                  # <<< COMPLETAR
+  anio_base: 2027                        # año 0 del estudio de mercado
+  horizonte: 20                          # años
+  plazo_dias: 120                        # plazo de ejecución de obra (días calendario)
+  # fecha_inicio_obra: 2027-03-01        # opcional (cronograma MS Project); por defecto, primer lunes de enero del año base
+
+# Sistema de coordenadas UTM (Perú: zona 17 S = 32717, 18 S = 32718, 19 S = 32719)
+epsg_utm: 32718                                                      # <<< COMPLETAR según la zona
+
+# Puntos de la línea (longitud, latitud WGS 84 en grados decimales – se copian de Google Earth)
+puntos:
+  inicio: {nombre: "<Punto de inicio>", lon: -00.0000000, lat: -00.0000000, descripcion: "punto de diseño – red existente 22,9 kV (por confirmar en la factibilidad)"}   # <<< COMPLETAR
+  fin:    {nombre: "<Punto final>",    lon: -00.0000000, lat: -00.0000000, descripcion: "llegada"}                                                                        # <<< COMPLETAR
+  derivaciones: []                       # cero, una o varias. Ejemplo:
+  #  - {id: "D1", nombre: "Localidad A", lon: -72.1234567, lat: -13.1234567}
+  #  - {id: "D2", nombre: "Localidad B", lon: -72.2234567, lat: -13.2234567}
+
+# Trazado
+trazado:
+  archivo_ruta: "datos/ruta.geojson"     # LineString en GeoJSON o KML (ruta guardada desde Google Earth) – ver docs/GUIA_NUEVO_PROYECTO.md
+  ruta_es_via: false                     # true: la ruta es el eje de una carretera → se desplaza 'desplazamiento_m' y se cuentan cruces
+  desplazamiento_m: 0                    # separación del eje de la vía (RD 018: ≥ 25 m de carreteras importantes); 0 = usar la ruta tal cual
+  lado: "derecha"                        # derecha / izquierda (sentido inicio → fin)
+  tolerancia_simplificacion_m: 15        # Douglas-Peucker
+  angulo_max_quiebre_deg: 60             # se eliminan quiebres mayores (vértices en U)
+  angulo_fusion_deg: 2                   # vértices casi colineales que se fusionan
+  dist_min_via_m: 25
+  nombre_via: ""                         # p. ej. "Vía Cusco – Urcos" (solo si ruta_es_via: true)
+
+# Datos geográficos de entrada (herramientas/preparar_datos.py los descarga)
+datos:
+  dem: "datos/dem.tif"                   # modelo digital de elevación (Copernicus GLO-30), WGS 84 – OBLIGATORIO
+  osm: "datos/osm_corredor.geojson"      # vías, ríos, edificaciones (OpenStreetMap) – opcional (si falta, no hay cruces ni edificaciones)
+
+# Sistema eléctrico (RD 018-2003-EM/DGE)
+sistema:
+  Vn: 22.9
+  Vmax: 25.0
+  f: 60
+  cos: 0.90
+  Scc_MVA: 250.0          # SUPUESTO – pedir a la concesionaria en la factibilidad
+  t_falla: 0.20           # s – SUPUESTO
+  dV_max_pct: 5.0
+  reserva_dV: 0.85        # se exige ΔV ≤ 85 % del límite (incertidumbre del estudio de mercado)
+  XR_fuente: 5.0          # SUPUESTO para el cortocircuito (Vol. IX)
+  nivel_isoceraunico: 30  # RD 018 Cuadro 6.1 (según altitud/zona) – si > 40 evalúe cable de guarda
+
+# Clima (SENAMHI, estación más cercana) y zona de carga del CNE-S 2011 (Regla 250.B, Tabla 250-1.A)
+clima:
+  estacion: "SENAMHI <estación> (normales 1991-2020)"               # <<< COMPLETAR
+  t_min_media: 0.0                                                  # <<< COMPLETAR (°C)
+  t_max_media: 0.0                                                  # <<< COMPLETAR (°C)
+  t_media: 10.0           # temperatura EDS (°C)                     # <<< COMPLETAR
+  t_min_diseno: -5.0      # SUPUESTO conservador
+  t_max_diseno: 40.0      # + 10 °C de CREEP se suma automáticamente (H6)
+  t_max_ambiente: 25      # para las especificaciones de equipos
+  zona_carga: "Área 0 (< 3 000 m s.n.m.)"   # CNE-S: Área 0 < 3 000; Área 1 3 000–4 000; Área 2 > 4 000 m s.n.m.
+  viento_ms: 26.0         # CNE-S: Área 0 = 26 m/s; Área 1 = 29 m/s; Área 2 = 31,5 m/s
+  t_viento: 10.0          # Área 0 = 10 °C; Área 1 = 5 °C; Área 2 = 0 °C
+  hielo_mm: 0.0           # Área 0 = 0; Área 1 = 6 mm; Área 2 = 25 mm (revisar CNE-S)
+  hielo_comb_mm: 0.0
+  viento_comb_ms: 0.0
+  K_viento: 0.613         # CNE-S 250.C: 0,613 hasta 3 000 m; 0,455 sobre 3 000 m s.n.m.
+  contaminacion: "Medio (clase II)"   # IEC 60815
+  radiacion: "Alta"
+
+# Estudio de mercado (INEI Censo 2017) – cada carga se conecta en "FIN" o en una derivación (id)
+mercado:
+  cargas:
+    - {nombre: "<Localidad / sector>", pob2017: 0, punto: "FIN"}      # <<< COMPLETAR (población INEI 2017)
+  hab_viv: 3.4            # SUPUESTO (INEI: habitantes por vivienda del distrito)
+  tasa_viv: 0.010         # SUPUESTO (tasa intercensal)
+  coef_elec: 0.95         # SUPUESTO
+  cu_kwh_mes: 25.0        # SUPUESTO (consumo unitario sector típico rural)
+  tasa_cu: 0.025          # SUPUESTO
+  pct_comercial: 0.10
+  pct_general: 0.05
+  pct_productivo: 0.05
+  pct_ap: 0.05
+  perd_dist: 0.08
+  fc: 0.30
+
+# Diseño mecánico y de estructuras (valores típicos RD 018 / CNE-S; cambiar solo con sustento)
+diseno:
+  dist_terreno_m: 6.0
+  dist_cruce_via_m: 7.0
+  margen_dem_m: 0.30
+  vano_max_m: 220
+  vano_min_m: 15
+  paso_plantillado_m: 5
+  anclaje_cada_m: 3000
+  postes:                 # L (m), Q (daN), Do y Db (cm)
+    "12/300": {L: 12.0, Q: 300.0, Do: 16.0, Db: 34.0}
+    "12/400": {L: 12.0, Q: 400.0, Do: 16.0, Db: 35.5}
+    "13/400": {L: 13.0, Q: 400.0, Do: 16.0, Db: 37.0}
+  armado: {d_sup: -0.30, d_inf: 1.10, sep_h: 2.0}
+  retenida: {cable: "Cable de acero galvanizado grado Siemens-Martin 10 mm (3/8\")", rotura_N: 30920.0, FS: 2.0, angulo_deg: 37.0}
+  puesta_tierra: {rho: 100.0, L: 2.4, d: 0.016, cada_n: 3, R_equipo_max: 25.0}   # rho SUPUESTO: medir en campo (Wenner)
+  linea_fuga_mm_kV: 20     # IEC 60815: 16 ligera, 20 media, 25 fuerte, 31 muy fuerte
+  conductor_mm2: 70        # kit de materiales (AAAC 70 mm²)
+  cable_guarda: false
+
+# Parámetros económicos
+economico:
+  tipo_cambio: 3.45                                                  # <<< COMPLETAR (BCRP, tipo de cambio SBS venta)
+  tipo_cambio_fuente: "BCRP – Tipo de cambio SBS venta, <fecha>"      # <<< COMPLETAR
+  utilidad: 0.08
+  igv: 0.18
+  transporte_pct: 0.07
+  ruta_transporte: "Lima – <ciudad> – obra, aprox. ___ km"          # <<< COMPLETAR
+# precios:                # opcional: reemplaza precios del catálogo (código: S/ sin IGV), p. ej. de sus cotizaciones
+#   "1.01": 1450.00       # poste CAC 12/300
+#   "3.01": 4.10          # conductor AAAC 70 mm² (S/ por m)
+
+# Textos propios del lugar (aparecen en la memoria, resumen ejecutivo, geología y riesgos)
+textos:
+  antecedentes: >-
+    <Describa el corredor, la población beneficiada y por qué se requiere la línea.>
+  situacion_actual: >-
+    <Cómo se abastecen hoy las localidades; calidad de suministro; documentos disponibles.>
+  actividad_economica: >-
+    <Actividades principales: agricultura, ganadería, comercio, minería…>
+  vias_acceso: >-
+    <Carreteras de acceso y distancia desde la ciudad donde están los proveedores.>
+  region_natural: "<Región natural, p. ej. Valle interandino>"
+  geologia: >-
+    <Geomorfología y suelos esperados según la carta geológica del INGEMMET (a confirmar con calicatas).>
+  peligros: >-
+    <Peligros: huaicos, inundación, deslizamientos, heladas, sismicidad (Norma E.030).>
+  cuadrangulo_ingemmet: "<cuadrángulo XX-x>"
+  riesgo_climatico: "<Temporada de lluvias (meses) que puede paralizar trabajos>"
